@@ -10,7 +10,6 @@ FROM ${UV_IMAGE} AS uv-source
 # ── Stage 1: Builder ──────────────────────────────────────────────────────────
 FROM python:3.12-slim-bookworm AS builder
 
-ARG NODE_MAJOR=22
 ARG APT_MIRROR
 ARG UV_INDEX_URL
 
@@ -20,18 +19,15 @@ RUN if [ -n "${APT_MIRROR}" ]; then \
       sed -i "s|deb.debian.org|${APT_MIRROR}|g" /etc/apt/sources.list 2>/dev/null || true; \
     fi
 
-# Install build tools + Node.js (build-essential needed for native Python extensions)
+# Install build tools + Node.js from npmmirror (解决 deb.nodesource.com 连接问题)
 RUN apt-get update && apt-get install -y \
-    curl \
     build-essential \
-    gnupg \
-    ca-certificates \
-    && mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-    && apt-get update \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://npmmirror.com/mirrors/node/v22.22.2/node-v22.22.2-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1 \
+    && ln -sf /usr/local/bin/node /usr/bin/node \
+    && ln -sf /usr/local/bin/npm /usr/bin/npm \
+    && ln -sf /usr/local/bin/npx /usr/bin/npx
 
 # Install uv (source image overridable via UV_IMAGE build arg)
 COPY --from=uv-source /uv /uvx /usr/local/bin/
