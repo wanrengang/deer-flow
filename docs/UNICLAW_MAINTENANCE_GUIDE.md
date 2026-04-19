@@ -188,6 +188,85 @@ git merge-base --is-ancestor upstream/main HEAD && echo "OK: main is up to date"
 
 ---
 
+## 七、当前仓库配置
+
+### Remote 配置
+```
+origin  → https://github.com/wanrengang/deer-flow.git  (你的 fork)
+upstream → https://github.com/bytedance/deer-flow.git   (官方仓库)
+```
+
+### 最新提交
+```
+commit 8b2a5180
+feat: rename DeerFlow to UniClaw - branding customization
+  32 files changed, 379 insertions(+), 187 deletions(-)
+```
+
+### Fork 地址
+- 你的 Fork：https://github.com/wanrengang/deer-flow
+- 官方仓库：https://github.com/bytedance/deer-flow
+
+---
+
+## 八、日常维护工作流
+
+### 场景 1：官方有新版本，你想同步代码
+
+```bash
+# 1. 确保在 main 分支，且没有未提交的改动
+git checkout main
+git status
+
+# 2. 拉取官方最新代码并合并
+git fetch upstream
+git merge upstream/main
+
+# 3. 如果有冲突，解决冲突后：
+git add .
+git commit -m "merge: resolve conflicts with upstream"
+
+# 4. 推送到你的 fork
+git push origin main
+```
+
+### 场景 2：你想继续开发新功能
+
+```bash
+# 1. 基于 main 创建新分支
+git checkout -b feature/your-feature-name
+
+# 2. 开发完成后，提交到你的 fork
+git add .
+git commit -m "feat: description"
+git push origin feature/your-feature-name
+
+# 3. 在 GitHub 上创建 PR 合并到你的 main
+```
+
+### 场景 3：查看改动
+
+```bash
+# 查看所有改动
+git diff HEAD
+
+# 查看某个文件改动
+git diff HEAD -- frontend/src/app/layout.tsx
+
+# 查看提交历史
+git log --oneline -10
+```
+
+---
+
+## 九、相关链接
+
+- [UniClaw Fork 仓库](https://github.com/wanrengang/deer-flow)
+- [DeerFlow 官方仓库](https://github.com/bytedance/deer-flow)
+- [维护指南文档](docs/UNICLAW_MAINTENANCE_GUIDE.md)
+
+---
+
 ## 七、获取帮助
 
 如果同步过程中遇到问题：
