@@ -267,6 +267,80 @@ git log --oneline -10
 
 ---
 
+## 十、本地前端开发模式
+
+由于 Windows/MINGW64 环境下 Docker 的文件监听有时不生效，**前端改动需要重启容器才能看到效果**，非常不方便。
+
+推荐使用**本地前端 + Docker 后端**的开发模式。
+
+### 10.1 启动后端服务（Docker）
+
+```bash
+cd D:\study\deer-flow
+
+# 启动后端服务（gateway、langgraph、nginx）
+docker compose -f docker/docker-compose-dev.yaml up -d gateway langgraph nginx
+```
+
+### 10.2 安装前端依赖（如首次运行）
+
+```bash
+cd frontend
+pnpm install
+```
+
+### 10.3 启动本地前端（热更新）
+
+```bash
+cd frontend
+pnpm dev
+```
+
+### 10.4 访问地址
+
+| 服务 | 地址 | 说明 |
+|------|------|------|
+| **本地前端** | http://localhost:3000 | 前端热更新正常 |
+| **Docker 后端** | http://localhost:2026 | 通过 nginx 访问完整应用 |
+
+### 10.5 工作原理
+
+```
+localhost:3000 (本地前端)
+     │
+     │ Next.js rewrites (自动代理)
+     │
+     ▼
+localhost:2026 (nginx)
+     │
+     ├─→ /api/langgraph/*  → langgraph (Docker)
+     └─→ /api/*           → gateway (Docker)
+```
+
+### 10.6 优势对比
+
+| 模式 | 前端热更新 | 配置复杂度 |
+|------|-----------|-----------|
+| Docker 全家桶 | ❌ 有时失效 | 简单 |
+| **本地前端 + Docker 后端** | ✅ 实时生效 | 稍复杂 |
+
+### 10.7 停止本地前端
+
+```bash
+# 在运行 pnpm dev 的终端按 Ctrl+C 停止
+
+# 或者强制停止
+taskkill /F /IM node.exe  # Windows
+```
+
+### 10.8 注意事项
+
+1. 确保 Docker 后端服务（gateway、langgraph、nginx）正常运行
+2. 本地前端会自动将 API 请求代理到 Docker 后端
+3. `.env` 文件中无需额外配置，使用默认的 nginx 代理即可
+
+---
+
 ## 七、获取帮助
 
 如果同步过程中遇到问题：
